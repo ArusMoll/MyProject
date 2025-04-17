@@ -15,31 +15,31 @@ jobs:
       - name: Check for approved review
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}  # ⬅️ Обов'язково!
           script: |
             const core = require('@actions/core');
             const pr = context.payload.pull_request;
-
             if (!pr) {
-              core.setFailed("Цей workflow має запускатися лише на pull_request.");
+              core.setFailed("No pull request context. Skipping review check.");
               return;
             }
 
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pr.number
+              pull_number: pr.number,
             });
 
             const approved = reviews.some(review => review.state === 'APPROVED');
             if (!approved) {
-              core.setFailed("Код-рев’ю не схвалено");
+              core.setFailed("Код-рев’ю не схвалено ❌");
+            } else {
+              console.log("✅ Код-рев’ю схвалено.");
             }
 
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
-    needs: review-check  # ⬅️ запуск тільки після рев'ю
+    needs: review-check
 
     steps:
       - uses: actions/checkout@v3
