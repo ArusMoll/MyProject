@@ -6,11 +6,10 @@ on:
       - main
     types: [opened, edited, reopened, synchronize, review_requested, submitted]
 
-
+jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
-    needs: review-check
 
     steps:
       - uses: actions/checkout@v3
