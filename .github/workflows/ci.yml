@@ -5,6 +5,7 @@ on:
     branches:
       - main
     types: [opened, edited, reopened, synchronize, review_requested, submitted]
+    
 
 jobs:
   build:
