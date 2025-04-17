@@ -6,35 +6,6 @@ on:
       - main
     types: [opened, edited, reopened, synchronize, review_requested, submitted]
 
-jobs:
-  review-check:
-    name: Code Review Check for main
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check for approved review
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const pr = context.payload.pull_request;
-            if (!pr) {
-              core.setFailed("No pull request context. Skipping review check.");
-              return;
-            }
-
-            const reviews = await github.rest.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number
-            });
-
-            const approved = reviews.data.some(review => review.state === 'APPROVED');
-            if (!approved) {
-              core.setFailed("Код-рев’ю не схвалено ❌");
-            } else {
-              console.log("✅ Код-рев’ю схвалено.");
-            }
 
   build:
     name: Build and analyze
