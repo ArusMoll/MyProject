@@ -12,20 +12,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check for approved review
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const { data: reviews } = await github.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            const approved = reviews.some(review => review.state === 'APPROVED');
-            if (!approved) {
-              core.setFailed("Код-рев’ю не схвалено");
-            }
+        - name: Check for approved review
+          uses: actions/github-script@v6
+    with:
+      script: |
+        const core = require('@actions/core'); // 🔧 Потрібен для core.setFailed
+        const pr = context.payload.pull_request;
+
+        if (!pr) {
+        core.setFailed("Цей workflow має запускатися лише у pull_request.");
+        return;
+        }
+
+        const { data: reviews } = await github.rest.pulls.listReviews({
+           owner: context.repo.owner,
+           repo: context.repo.repo,
+           pull_number: pr.number
+        });
+
+        const approved = reviews.some(review => review.state === 'APPROVED');
+        if (!approved) {
+        core.setFailed("Код-рев’ю не схвалено");
+        }
+
 
   build:
     name: Build and analyze
